@@ -4,8 +4,8 @@
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
 
-const char *ssid = "Retr0";
-const char *password = "d4a2992f58bb";
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASSWORD;
 
 AsyncWebServer server(80);
 
