@@ -1,91 +1,132 @@
 # ESP8266 ElegantOTA Updater
 
-This project demonstrates an over-the-air (OTA) firmware updater for the ESP8266 using the [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA) library. The firmware connects to a Wi‑Fi network, sets up an HTTP web server, and enables firmware updates via OTA—without needing a physical USB connection.
+This project demonstrates an over‑the‑air (OTA) firmware updater for the ESP8266 using the [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA) library—now refactored to decouple the OTA update logic from the web server code. The firmware connects to a Wi‑Fi network (with credentials injected via an environment file), sets up an asynchronous HTTP web server, and enables OTA firmware updates without needing a USB connection.
+
+---
 
 ## Features
 
-- **Wi‑Fi Connectivity:** Connects to a specified SSID and obtains an IP address.
-- **Web Server:** Runs an HTTP server on port 80 with a basic endpoint (`/`) for testing.
-- **ElegantOTA Integration:** Leverages ElegantOTA for secure and easy OTA updates.
-- **Serial Debugging:** Prints connection status and IP address details to the serial monitor.
-- **PlatformIO & Arduino Framework:** Configured for rapid prototyping.
-- **Environment Variable Support:** Wi‑Fi credentials are read from a `.env` file (handled in the build process).
+- **Decoupled OTA Module:**  
+  OTA update functionality is encapsulated in its own module (`OTAUpdater`), allowing integration with any web server instance.
+  
+- **Wi‑Fi Connectivity via Environment Variables:**  
+  Wi‑Fi credentials (SSID and password) are injected at build time from a `.env` file using PlatformIO build flags.
+  
+- **Asynchronous Web Server:**  
+  Utilizes ESPAsyncWebServer (and ESPAsyncTCP/AsyncTCP) to run a non‑blocking HTTP server on port 80.
+  
+- **ElegantOTA Integration:**  
+  Provides a secure OTA update interface accessible at the `/update` route.
+  
+- **PlatformIO & Arduino Framework:**  
+  Configured for rapid prototyping with automated build flag injection and dependency management.
+
+---
 
 ## Requirements
 
-- An ESP8266 board (e.g., ESP-12F)
-- [PlatformIO](https://platformio.org/) installed on your development machine **with the ESP8266 board package**.
-- A Wi‑Fi network (ensure the credentials in the code match your network).
+- An ESP8266 board (e.g., ESP‑12F)
+- [PlatformIO](https://platformio.org/) installed with the ESP8266 board package.
+- A Wi‑Fi network (ensure your credentials in the `.env` file are correct).
 - Python with the [`python-dotenv`](https://pypi.org/project/python-dotenv/) package installed in PlatformIO’s virtual environment.
 
-> **Note:** The ESP8266 board package is provided via PlatformIO—it includes all necessary libraries, headers, and toolchain support to compile and flash firmware for the ESP8266.
+> **Note:** The PlatformIO environment automatically injects Wi‑Fi credentials into your code via build flags. Ensure a `.env` file exists in the project root.
+
+---
 
 ## Getting Started
 
-1. **Clone the Repository:**
+### 1. Clone the Repository
 
-   ```bash
-   git clone https://github.com/noiz-x/esp8266-ota-update
-   cd esp8266-ota-update
-   ```
+```bash
+git clone https://github.com/noiz-x/esp8266-ota-update
+cd esp8266-ota-update
+```
 
-2. **Configure Wi‑Fi Credentials:**
+### 2. Configure Wi‑Fi Credentials
 
-   Create a `.env` file in the project root with your network credentials:
+Create a `.env` file in the project root with your network credentials:
 
-   ```ini
-   WIFI_SSID=YourSSID
-   WIFI_PASSWORD=YourPassword
-   ```
+```ini
+WIFI_SSID=YourSSID
+WIFI_PASSWORD=YourPassword
+```
 
-   The build process uses an extra script to read these values and pass them as build flags to your source code.
+The provided build script reads these values and passes them as build flags.
 
-3. **PlatformIO Configuration:**
+### 3. PlatformIO Configuration
 
-   Ensure your `platformio.ini` includes the necessary build flags and extra script:
+Ensure your `platformio.ini` includes the necessary settings, build flags, and extra scripts. For example:
 
-   ```ini
-   [env:esp12e]
-   platform = espressif8266
-   board = esp12e
-   framework = arduino
-   monitor_speed = 115200
-   lib_deps = ayushsharma82/ElegantOTA@^3.1.7
-   lib_compat_mode = strict
-   build_flags = -DELEGANTOTA_USE_ASYNC_WEBSERVER=1
-   extra_scripts = pre:get_details.py
-   ```
+```ini
+[env:esp12e]
+platform = espressif8266
+board = esp12e
+framework = arduino
+monitor_speed = 115200
+lib_deps = 
+    ayushsharma82/ElegantOTA@^3.1.7
+    me-no-dev/ESPAsyncWebServer@^1.2.3
+    me-no-dev/ESPAsyncTCP@^1.1.0
+lib_compat_mode = strict
+build_flags = -DELEGANTOTA_USE_ASYNC_WEBSERVER=1
+extra_scripts = pre:get_details.py
+```
 
-   > **Tip:** Make sure the `python-dotenv` module is installed in PlatformIO’s environment by running:  
-   > `~/.platformio/penv/bin/pip install python-dotenv`
+> **Tip:** Make sure the `python-dotenv` module is installed in PlatformIO’s environment:
+> 
+> ```bash
+> ~/.platformio/penv/bin/pip install python-dotenv
+> ```
 
-4. **Build and Upload:**
+### 4. Project Structure Overview
 
-   Use PlatformIO to build and flash the firmware onto your ESP8266:
+- **OTA Module:**  
+  The OTA update functionality is encapsulated in a separate module (`ota_module.h`) which contains the `OTAUpdater` class. This class exposes methods to initialize and process OTA updates independently of the web server code.
 
-   ```bash
-   pio run --target upload
-   ```
+- **Main Application:**  
+  The main application (`main.cpp`) sets up Wi‑Fi using credentials injected via build flags, initializes the asynchronous web server with a basic route, and integrates the OTA updater by calling its `begin()` method in `setup()` and its `loop()` method in `loop()`.
 
-5. **Monitor Serial Output:**
+### 5. Build and Upload
 
-   Open the serial monitor to view connection status and IP address details:
+Use PlatformIO to build and flash the firmware onto your ESP8266:
 
-   ```bash
-   pio device monitor --monitor_speed 115200
-   ```
+```bash
+pio run --target upload
+```
 
-6. **OTA Update:**
+### 6. Monitor Serial Output
 
-   Once connected, the ElegantOTA interface will be available via the web server running on the ESP8266’s IP address. Open a browser, enter the printed IP address, and follow the prompts to perform OTA updates.
+Open the serial monitor to view connection status and IP details:
+
+```bash
+pio device monitor --monitor_speed 115200
+```
+
+### 7. OTA Update Process
+
+Once the device is connected, the ElegantOTA interface will be available via your web server at the ESP8266’s IP address:
+- Open your browser and enter the printed IP address.
+- Navigate to `/update` to access the OTA update interface.
+- **Note:** Only upload the `firmware.bin` file generated in the build folder. Do not upload any other files.
+
+---
 
 ## Troubleshooting
 
-- **Wi‑Fi Connection Issues:** Verify that the SSID and password in your `.env` file are correct. For an open network, consider using `WiFi.begin(ssid);` without a password.
-- **Serial Monitor Issues:** Ensure your board is connected and that the baud rate is set to 115200. If no output appears, try pressing the reset button on your ESP8266.
-- **ModuleNotFoundError:** If you see an error regarding `dotenv`, ensure you have installed `python-dotenv` in PlatformIO’s environment using:  
-  `~/.platformio/penv/bin/pip install python-dotenv`
-- **OTA Not Initiating:** Confirm that the web server is running (check for the "HTTP server started" message in the serial output) and then access the ElegantOTA interface via the ESP8266’s IP address in your browser.
+- **Wi‑Fi Connection:**  
+  Verify that your `.env` file contains the correct `WIFI_SSID` and `WIFI_PASSWORD`.
+
+- **Library Errors:**  
+  Ensure the required libraries (`ESPAsyncWebServer` and `ESPAsyncTCP`/`AsyncTCP`) are installed as specified in your `platformio.ini`.
+
+- **Serial Monitor:**  
+  Confirm your board is connected and that the baud rate is set to 115200.
+
+- **OTA Not Initiating:**  
+  Check for the "HTTP server started" message in the serial output and verify that the `/update` route is accessible in your browser.
+
+---
 
 ## License
 
