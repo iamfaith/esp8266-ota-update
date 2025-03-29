@@ -1,10 +1,7 @@
 ---
-Name: Feature request
-About: Suggest new features or improvements.
-Title: "[FEATURE REQUEST]"
-Labels: enhancement
-Assignees: noiz-x
-
+name: Feature request
+about: Suggest new features or improvements.
+title: "[FEATURE REQUEST]"
 ---
 
 ## **Feature Description**
