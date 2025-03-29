@@ -64,10 +64,7 @@ platform = espressif8266
 board = esp12e
 framework = arduino
 monitor_speed = 115200
-lib_deps = 
-    ayushsharma82/ElegantOTA@^3.1.7
-    me-no-dev/ESPAsyncWebServer@^1.2.3
-    me-no-dev/ESPAsyncTCP@^1.1.0
+lib_deps = ayushsharma82/ElegantOTA@^3.1.7
 lib_compat_mode = strict
 build_flags = -DELEGANTOTA_USE_ASYNC_WEBSERVER=1
 extra_scripts = pre:get_details.py
