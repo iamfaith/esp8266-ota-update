@@ -6,19 +6,11 @@ This project demonstrates an over‑the‑air (OTA) firmware updater for the ESP
 
 ## Features
 
-- **Decoupled OTA Module:**  
-  OTA update functionality is encapsulated in its own module (`OTAUpdater`), allowing integration with any web server instance.
-  
-- **Wi‑Fi Connectivity via Environment Variables:**  
-  Wi‑Fi credentials (SSID and password) are injected at build time from a `.env` file using PlatformIO build flags.
-  
-- **Asynchronous Web Server:**  
-  Utilizes ESPAsyncWebServer (and ESPAsyncTCP/AsyncTCP) to run a non‑blocking HTTP server on port 80.
-  
-- **ElegantOTA Integration:**  
-  Provides a secure OTA update interface accessible at the `/update` route.
-  
-- **PlatformIO & Arduino Framework:**  
+- **Decoupled OTA Module:**OTA update functionality is encapsulated in its own module (`OTAUpdater`), allowing integration with any web server instance.
+- **Wi‑Fi Connectivity via Environment Variables:**Wi‑Fi credentials (SSID and password) are injected at build time from a `.env` file using PlatformIO build flags.
+- **Asynchronous Web Server:**Utilizes ESPAsyncWebServer (and ESPAsyncTCP/AsyncTCP) to run a non‑blocking HTTP server on port 80.
+- **ElegantOTA Integration:**Provides a secure OTA update interface accessible at the `/update` route.
+- **PlatformIO & Arduino Framework:**
   Configured for rapid prototyping with automated build flag injection and dependency management.
 
 ---
@@ -42,6 +34,7 @@ This project demonstrates an over‑the‑air (OTA) firmware updater for the ESP
 git clone https://github.com/noiz-x/esp8266-ota-update
 cd esp8266-ota-update
 ```
+
 
 ### 2. Configure Wi‑Fi Credentials
 
@@ -71,17 +64,17 @@ extra_scripts = pre:get_details.py
 ```
 
 > **Tip:** Make sure the `python-dotenv` module is installed in PlatformIO’s environment:
-> 
+>
+> C:\Users\faith\\.platformio\penv\Scripts\pip.exe install python-dotenv
+>
 > ```bash
 > ~/.platformio/penv/bin/pip install python-dotenv
 > ```
 
 ### 4. Project Structure Overview
 
-- **OTA Module:**  
-  The OTA update functionality is encapsulated in a separate module (`ota_module.h`) which contains the `OTAUpdater` class. This class exposes methods to initialize and process OTA updates independently of the web server code.
-
-- **Main Application:**  
+- **OTA Module:**The OTA update functionality is encapsulated in a separate module (`ota_module.h`) which contains the `OTAUpdater` class. This class exposes methods to initialize and process OTA updates independently of the web server code.
+- **Main Application:**
   The main application (`main.cpp`) sets up Wi‑Fi using credentials injected via build flags, initializes the asynchronous web server with a basic route, and integrates the OTA updater by calling its `begin()` method in `setup()` and its `loop()` method in `loop()`.
 
 ### 5. Build and Upload
@@ -103,6 +96,7 @@ pio device monitor --monitor_speed 115200
 ### 7. OTA Update Process
 
 Once the device is connected, the ElegantOTA interface will be available via your web server at the ESP8266’s IP address:
+
 - Open your browser and enter the printed IP address.
 - Navigate to `/update` to access the OTA update interface.
 - **Note:** Only upload the `firmware.bin` file generated in the build folder. Do not upload any other files.
@@ -111,16 +105,10 @@ Once the device is connected, the ElegantOTA interface will be available via you
 
 ## Troubleshooting
 
-- **Wi‑Fi Connection:**  
-  Verify that your `.env` file contains the correct `WIFI_SSID` and `WIFI_PASSWORD`.
-
-- **Library Errors:**  
-  Ensure the required libraries (`ESPAsyncWebServer` and `ESPAsyncTCP`/`AsyncTCP`) are installed as specified in your `platformio.ini`.
-
-- **Serial Monitor:**  
-  Confirm your board is connected and that the baud rate is set to 115200.
-
-- **OTA Not Initiating:**  
+- **Wi‑Fi Connection:**Verify that your `.env` file contains the correct `WIFI_SSID` and `WIFI_PASSWORD`.
+- **Library Errors:**Ensure the required libraries (`ESPAsyncWebServer` and `ESPAsyncTCP`/`AsyncTCP`) are installed as specified in your `platformio.ini`.
+- **Serial Monitor:**Confirm your board is connected and that the baud rate is set to 115200.
+- **OTA Not Initiating:**
   Check for the "HTTP server started" message in the serial output and verify that the `/update` route is accessible in your browser.
 
 ---

@@ -17,6 +17,20 @@ OTAUpdater otaUpdater;
 
 // ? Variables to be defined
 
+#define LED_PIN 2  // ESP32 DevKit v1 板载 LED 通常连接在 GPIO2
+
+void setup_update() {
+
+  pinMode(LED_PIN, OUTPUT);
+}
+
+void loop_update() {
+  digitalWrite(LED_PIN, HIGH);  // 点亮 LED
+  delay(500);                   // 延时 500 毫秒
+  digitalWrite(LED_PIN, LOW);   // 熄灭 LED
+  delay(500);                   // 延时 500 毫秒
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -46,6 +60,7 @@ void setup()
   Serial.println("HTTP server started");
 
   // ? Initialization of tasks
+  setup_update();
 }
 
 void loop()
@@ -53,5 +68,6 @@ void loop()
   // Process OTA update tasks (non-blocking).
   otaUpdater.loop();
 
+  loop_update();
   // ? Other tasks to be run
 }
